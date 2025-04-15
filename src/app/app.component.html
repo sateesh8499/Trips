@@ -15,7 +15,11 @@
           aria-label="Close"
         ></button>
       </div>
-      <div class="form-group" [formGroup]="tripForm">
+      <form
+        class="form-group"
+        [formGroup]="tripForm"
+        (ngSubmit)="addTrip(tripForm.value)"
+      >
         <div class="row justify-content-center align-items-center">
           <div class="col-lg-4 col-md-6 col-xl-2">
             <label for="">Starting Point</label>
@@ -36,22 +40,19 @@
             />
           </div>
           <div class="col-lg-2 col-md-12 col-xl-1">
-            <button
-              class="btn btn-primary mt-4 d-block"
-              type="button"
-              (click)="addTrip(tripForm.value)"
-            >
+            <button class="btn btn-primary mt-4 d-block" type="submit">
               Add Trip
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
 
-    <div class="trip-box d-flex p-4 justify-content-center">
+    <div class="trip-box d-flex justify-content-center">
       <div
         *ngFor="let item of tripsArr; let i = index"
         class="d-flex align-items-center trip"
+        [ngStyle]="{ marginTop: item.marginTop }"
       >
         <div class="origin">
           <div class="start-point">
@@ -65,9 +66,46 @@
                 notContinued: item.tripType === 'notContinued'
               }"
               style="font-size: 18px"
+              [ngStyle]="{
+                marginTop: (item.tripType === 'continued' && item.line === 'curvedDown') ? '-160px' : '0',
+              }"
             ></i>
             <!-- LINE -->
-            <div
+            <svg
+              [ngClass]="{
+              initial: item.tripType === 'initial',
+              continued: item.tripType === 'continued',
+              sameContinued: item.tripType === 'sameContinued',
+              notContinued: item.tripType === 'notContinued',
+              waveLineInitial: item.tripType === 'initial',
+              waveLineContinued: item.tripType === 'continued',
+              waveLineSameContinued: item.tripType === 'sameContinued',
+              waveLineNotContinued: item.tripType === 'notContinued',
+            
+            }"
+              [ngStyle]="{
+                marginTop: item.line === 'straight' ? '0' : '-90px'
+              }"
+              viewBox="0 0 130 109"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <line
+                x1="0"
+                y1="54"
+                x2="250"
+                y2="54"
+                *ngIf="item.line === 'straight'"
+              />
+              <path
+                d="M0,100 C60,100 50,0 180,40"
+                *ngIf="item.line === 'curvedUp'"
+              ></path>
+              <path
+                d="M0,20 C100,20 60,120 160,100"
+                *ngIf="item.line === 'curvedDown'"
+              />
+            </svg>
+            <!-- <div
               [ngClass]="{
                 initial: item.tripType === 'initial',
                 continued: item.tripType === 'continued',
@@ -79,7 +117,7 @@
 
                 notContinuedLine: item.tripType === 'notContinued',
               }"
-            ></div>
+            ></div> -->
             <!-- DOT -->
             <i
               class="bi bi-circle start"
@@ -90,6 +128,7 @@
                 notContinued: item.tripType === 'notContinued'
               }"
               [ngStyle]="{
+                marginTop: item.line === 'straight' ? '0' : '-136px',
                 display: item.tripType === 'continued' ? 'none' : ''
               }"
               style="font-size: 18px"
@@ -103,48 +142,42 @@
             }"
             ></i>
           </div>
-          <span
-            class="origin-text"
-            [ngClass]="{
-              initial: item.tripType === 'initial',
-              continued: item.tripType === 'continued',
-              sameContinued: item.tripType === 'sameContinued',
-              notContinued: item.tripType === 'notContinued'
+          <div class="d-flex">
+            <div
+              class="origin-text"
+              [ngClass]="{
+                initial: item.tripType === 'initial',
+                continued: item.tripType === 'continued',
+                sameContinued: item.tripType === 'sameContinued',
+                notContinued: item.tripType === 'notContinued'
+              }"
+              [ngStyle]="{
+              marginTop: (item.tripType === 'continued' && item.line === 'curvedDown') ? '-136px' : '0',
             }"
-            >{{ item.origin.sub }} - {{ item.destination.sub }}</span
-          >
-          <span
-            class="destination-text"
-            [ngClass]="{
-              initial: item.tripType === 'initial',
-              continued: item.tripType === 'continued',
-              sameContinued: item.tripType === 'sameContinued',
-              notContinued: item.tripType === 'notContinued'
+            >
+              {{ item.origin.sub }} - {{ item.destination.sub }}
+            </div>
+            <div
+              class="destination-text"
+              [ngClass]="{
+                initial: item.tripType === 'initial',
+                continued: item.tripType === 'continued',
+                sameContinued: item.tripType === 'sameContinued',
+                notContinued: item.tripType === 'notContinued'
+              }"
+              [ngStyle]="{
+              marginTop: item.line === 'straight' ? '0' : '-136px',
             }"
-            *ngIf="tripsArr.length === 1 || i === tripsArr.length - 1"
-            >{{ item.destination.sub }}</span
-          >
+              *ngIf="tripsArr.length === 1 || i === tripsArr.length - 1"
+            >
+              {{ item.destination.sub }}
+            </div>
+          </div>
         </div>
 
         <!-- <div class="end-point"><i class="bi bi-circle"></i></div> -->
         <!-- <div class="completed-point"><i class="bi bi-circle-fill"></i></div> -->
       </div>
-    </div>
-  </div>
-  <div
-    class="toast align-items-center text-bg-primary border-0"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-  >
-    <div class="d-flex">
-      <div class="toast-body">Hello, world! This is a toast message.</div>
-      <button
-        type="button"
-        class="btn-close btn-close-white me-2 m-auto"
-        data-bs-dismiss="toast"
-        aria-label="Close"
-      ></button>
     </div>
   </div>
 </section>

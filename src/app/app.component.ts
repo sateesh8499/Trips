@@ -14,7 +14,11 @@ export class AppComponent {
   });
   tripsArr: any = [];
   showMessage: boolean = false;
+  display: { [klass: string]: any } | null | undefined;
+  lastTripElement: any;
   addTrip(form: any) {
+    console.log(form);
+
     if (form.start_point === '' || form.end_point === '') {
       this.showMessage = true;
       setTimeout(() => {
@@ -33,37 +37,90 @@ export class AppComponent {
         sub: form.end_point.substr(0, 3).toLocaleUpperCase(),
       },
       tripType: 'initial',
+      line: 'straight',
+      marginTop: '0',
     };
 
     if (this.tripsArr.length > 0) {
-      const lastTripElement = this.tripsArr[this.tripsArr.length - 1];
-
+      this.lastTripElement = this.tripsArr[this.tripsArr.length - 1];
       if (
-        lastTripElement.destination.sub.toLocaleLowerCase() ===
+        this.lastTripElement.destination.sub.toLocaleLowerCase() ===
         form.start_point.toLocaleLowerCase()
       ) {
         obj.tripType = 'continued';
+        obj.line = 'straight';
+        if (
+          this.lastTripElement.line === 'straight' &&
+          this.lastTripElement.tripType === 'notContinued'
+        ) {
+          obj.tripType = 'continued';
+          obj.line = 'curvedDown';
+        }
+        if (this.lastTripElement.line === 'curvedUp') {
+          obj.line = 'straight';
+          obj.marginTop = '-68px';
+        }
+        if (
+          this.lastTripElement.line === 'curvedDown' &&
+          this.lastTripElement.tripType === 'continued'
+        ) {
+          obj.line = 'straight';
+          obj.marginTop = '12px';
+        }
+        if (
+          this.lastTripElement.line === 'straight' &&
+          this.lastTripElement.tripType === 'continued'
+        ) {
+          obj.tripType = 'continued';
+          obj.line = 'straight';
+          obj.marginTop = '0';
+        }
         this.tripsArr.push(obj);
-        // console.log('continued');
       } else if (
-        lastTripElement.origin.sub.toLocaleLowerCase() ===
+        this.lastTripElement.origin.sub.toLocaleLowerCase() ===
           form.start_point.toLocaleLowerCase() &&
-        lastTripElement.destination.sub.toLocaleLowerCase() ===
+        this.lastTripElement.destination.sub.toLocaleLowerCase() ===
           form.end_point.toLocaleLowerCase()
       ) {
         obj.tripType = 'sameContinued';
+        obj.line = 'straight';
+        if (
+          this.lastTripElement.line === 'straight' &&
+          this.lastTripElement.tripType === 'notContinued'
+        ) {
+          obj.tripType = 'continued';
+          obj.line = 'curvedDown';
+          obj.marginTop = '0';
+        }
         this.tripsArr.push(obj);
       } else {
         obj.tripType = 'notContinued';
+        if (this.lastTripElement.line === 'curvedUp') {
+          obj.line = 'straight';
+          obj.marginTop = '-68px';
+        } else if (
+          this.lastTripElement.line === 'straight' &&
+          this.lastTripElement.tripType === 'continued'
+        ) {
+          obj.line = 'curvedUp';
+          obj.marginTop = '0';
+        } else if (
+          this.lastTripElement.line === 'straight' &&
+          this.lastTripElement.tripType === 'notContinued'
+        ) {
+          obj.line = 'straight';
+          obj.marginTop = '-68px';
+        } else {
+          obj.line = 'curvedUp';
+        }
         this.tripsArr.push(obj);
-        // console.log('notContinued');
       }
     } else {
       this.tripsArr.push(obj);
     }
-    this.tripForm.get('start_point')?.patchValue('');
-    this.tripForm.get('end_point')?.patchValue('');
+    // console.log(this.tripsArr, 'tyu');
 
-    // console.log(this.tripsArr, 'fghyj');
+    // this.tripForm.get('start_point')?.patchValue('');
+    // this.tripForm.get('end_point')?.patchValue('');
   }
 }
